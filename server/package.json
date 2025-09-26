@@ -12,6 +12,7 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@remix-run/form-data-parser": "^0.10.1",
     "@remix-run/node-fetch-server": "^0.9.0"
   },
   "devDependencies": {
