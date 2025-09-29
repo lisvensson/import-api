@@ -1,8 +1,9 @@
 import * as fsp from 'node:fs/promises';
-import * as http from 'node:http'
-import { createRequestListener, FetchHandler } from '@remix-run/node-fetch-server'
+import * as http from 'node:http';
+import { createRequestListener, FetchHandler } from '@remix-run/node-fetch-server';
 import { performance } from 'node:perf_hooks';
 import { FileUpload, parseFormData } from '@remix-run/form-data-parser';
+import { LocalFileStorage } from '@remix-run/file-storage/local';
 
 
 const handler: FetchHandler = async (request: Request, client) => {
@@ -35,14 +36,13 @@ const handler: FetchHandler = async (request: Request, client) => {
     }
   }
 
-  if (path === '/upload' && method === 'POST') {
+  if (path === '/upload1' && method === 'POST') {
     try {    
       const uploadHandler = async (fileUpload: FileUpload) => {
         if (fileUpload.fieldName === 'file') {
           const filePath = `C:/Users/LiSve/Documents/FSU24/09_LIA-1/import-api/server/src/uploads/${Date.now()}-${fileUpload.name}`;
           const bytes = await fileUpload.bytes();
           await fsp.writeFile(filePath, bytes);
-
           console.log(fileUpload);
           return filePath;
         }
@@ -50,6 +50,44 @@ const handler: FetchHandler = async (request: Request, client) => {
 
       const formData = await parseFormData(request, uploadHandler);
       const uploadedFile = formData.get('file');
+
+      if (!uploadedFile) {
+        return Response.json({success: false, message: 'No file uploaded'}, {status: 400});
+      }
+
+      return Response.json({
+        success: true,
+        file: uploadedFile,
+      });
+
+    } catch (error) {
+      console.error('Upload failed:', error);
+      return Response.json({success: false, error: 'Upload failed'}, {status: 500});
+    }
+  }
+
+  if (path === '/upload2' && method === 'POST') {
+    const storage = new LocalFileStorage('C:/Users/LiSve/Documents/FSU24/09_LIA-1/import-api/server/src/uploads/')
+    try {    
+      const uploadHandler = async (fileUpload: FileUpload) => {
+        if (fileUpload.fieldName === 'file') {
+          const bytes = await fileUpload.bytes()
+          console.log('Bytes:', bytes);
+          const file = new File([bytes], fileUpload.name, { type: fileUpload.type })
+          console.log('FileUpload:', fileUpload)
+          console.log('File:', file);
+          const key = `${Date.now()}-${fileUpload.name}`;
+          console.log('FileUpload.name:', fileUpload.name);
+          console.log('Key:', key)
+          await storage.set(key, file);
+
+          return `/uploads/${key}` 
+        }
+      }
+
+      const formData = await parseFormData(request, uploadHandler);
+      const uploadedFile = formData.get('file');
+      console.log('uploadedFile: ', uploadedFile);
 
       if (!uploadedFile) {
         return Response.json({success: false, message: 'No file uploaded'}, {status: 400});
