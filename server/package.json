@@ -14,7 +14,9 @@
   "dependencies": {
     "@remix-run/file-storage": "^0.9.0",
     "@remix-run/form-data-parser": "^0.10.1",
-    "@remix-run/node-fetch-server": "^0.9.0"
+    "@remix-run/headers": "^0.12.0",
+    "@remix-run/node-fetch-server": "^0.9.0",
+    "dotenv": "^17.2.2"
   },
   "devDependencies": {
     "@types/node": "^24.5.2"

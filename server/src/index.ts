@@ -4,6 +4,7 @@ import { createRequestListener, FetchHandler } from '@remix-run/node-fetch-serve
 import { performance } from 'node:perf_hooks';
 import { FileUpload, parseFormData } from '@remix-run/form-data-parser';
 import { LocalFileStorage } from '@remix-run/file-storage/local';
+import 'dotenv/config';
 
 
 const handler: FetchHandler = async (request: Request, client) => {
@@ -14,6 +15,13 @@ const handler: FetchHandler = async (request: Request, client) => {
   console.log(`Path: ${path}`);
   console.log(`Method: ${method}`);
   console.log(`Client IP: ${client.address}:${client.port}`);
+
+  const authHeader = request.headers.get('Authorization');
+  const apiKey = process.env.API_KEY;
+
+  if (!authHeader || authHeader !== apiKey) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
 
   if (path === '/' && method === 'GET') {
     return new Response('Hello world!');
