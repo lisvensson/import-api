@@ -79,7 +79,16 @@ const handler: FetchHandler = async (request: Request, client) => {
     try {    
       const uploadHandler = async (fileUpload: FileUpload) => {
         if (fileUpload.fieldName === 'file') {
-          const bytes = await fileUpload.bytes()
+          const validateFile = fileUpload.type === 'text/csv';
+          if (!validateFile) {
+            throw new Error ('Ivalid file typ, only CSV files can be uploaded.')
+          }
+          const validateFileSize = 2 * 1024 * 1024;
+           if (fileUpload.size > validateFileSize) {
+            throw new Error('File too large max size is 2MB.')
+          }
+
+          const bytes = await fileUpload.bytes();         
           const file = new File([bytes], fileUpload.name, { type: fileUpload.type })
           console.log('File:', file);
           const key = `${Date.now()}-${fileUpload.name}`;
