@@ -72,12 +72,9 @@ const handler: FetchHandler = async (request: Request, client) => {
       const uploadHandler = async (fileUpload: FileUpload) => {
         if (fileUpload.fieldName === 'file') {
           const bytes = await fileUpload.bytes()
-          console.log('Bytes:', bytes);
           const file = new File([bytes], fileUpload.name, { type: fileUpload.type })
-          console.log('FileUpload:', fileUpload)
           console.log('File:', file);
           const key = `${Date.now()}-${fileUpload.name}`;
-          console.log('FileUpload.name:', fileUpload.name);
           console.log('Key:', key)
           await storage.set(key, file);
 
@@ -87,7 +84,6 @@ const handler: FetchHandler = async (request: Request, client) => {
 
       const formData = await parseFormData(request, uploadHandler);
       const uploadedFile = formData.get('file');
-      console.log('uploadedFile: ', uploadedFile);
 
       if (!uploadedFile) {
         return Response.json({success: false, message: 'No file uploaded'}, {status: 400});
