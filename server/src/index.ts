@@ -1,11 +1,11 @@
-import * as fsp from 'node:fs/promises';
 import * as http from 'node:http';
 import { createRequestListener, FetchHandler } from '@remix-run/node-fetch-server';
 import { performance } from 'node:perf_hooks';
-import { FileUpload, parseFormData } from '@remix-run/form-data-parser';
-import { LocalFileStorage } from '@remix-run/file-storage/local';
+import { parseFormData } from '@remix-run/form-data-parser';
 import 'dotenv/config';
-
+import { uploadHandler1 } from './utils/uploadHandler1.js';
+import { uploadHandler2 } from './utils/uploadHandler2.js';
+import { parseCsvFile } from './utils/parseCsvFile.js';
 
 const handler: FetchHandler = async (request: Request, client) => {
   const start = performance.now();
@@ -46,18 +46,9 @@ const handler: FetchHandler = async (request: Request, client) => {
 
   if (path === '/upload1' && method === 'POST') {
     try {    
-      const uploadHandler = async (fileUpload: FileUpload) => {
-        if (fileUpload.fieldName === 'file') {
-          const filePath = `C:/Users/LiSve/Documents/FSU24/09_LIA-1/import-api/server/src/uploads/${Date.now()}-${fileUpload.name}`;
-          const bytes = await fileUpload.bytes();
-          await fsp.writeFile(filePath, bytes);
-          console.log(fileUpload);
-          return filePath;
-        }
-      }
-
-      const formData = await parseFormData(request, uploadHandler);
-      const uploadedFile = formData.get('file');
+      const formData = await parseFormData(request, uploadHandler1);
+      const uploadedFile = formData.get('file') as string;
+      const {columns, rows} = await parseCsvFile(uploadedFile);
 
       if (!uploadedFile) {
         return Response.json({success: false, message: 'No file uploaded'}, {status: 400});
@@ -66,6 +57,8 @@ const handler: FetchHandler = async (request: Request, client) => {
       return Response.json({
         success: true,
         file: uploadedFile,
+        columns,
+        rows
       });
 
     } catch (error) {
@@ -75,31 +68,8 @@ const handler: FetchHandler = async (request: Request, client) => {
   }
 
   if (path === '/upload2' && method === 'POST') {
-    const storage = new LocalFileStorage('C:/Users/LiSve/Documents/FSU24/09_LIA-1/import-api/server/src/uploads/')
-    try {    
-      const uploadHandler = async (fileUpload: FileUpload) => {
-        if (fileUpload.fieldName === 'file') {
-          const validateFile = fileUpload.type === 'text/csv';
-          if (!validateFile) {
-            throw new Error ('Ivalid file typ, only CSV files can be uploaded.')
-          }
-          const validateFileSize = 2 * 1024 * 1024;
-           if (fileUpload.size > validateFileSize) {
-            throw new Error('File too large max size is 2MB.')
-          }
-
-          const bytes = await fileUpload.bytes();         
-          const file = new File([bytes], fileUpload.name, { type: fileUpload.type })
-          console.log('File:', file);
-          const key = `${Date.now()}-${fileUpload.name}`;
-          console.log('Key:', key)
-          await storage.set(key, file);
-
-          return `/uploads/${key}` 
-        }
-      }
-
-      const formData = await parseFormData(request, uploadHandler);
+    try {
+      const formData = await parseFormData(request, uploadHandler2);
       const uploadedFile = formData.get('file');
 
       if (!uploadedFile) {
