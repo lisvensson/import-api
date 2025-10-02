@@ -22,6 +22,6 @@ export async function uploadHandler2(fileUpload: FileUpload) {
         console.log('Key:', key);
         await storage.set(key, file);
 
-        return `/uploads/${key}` 
+        return `${filePath}${key}` 
     }
 }

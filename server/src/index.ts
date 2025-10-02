@@ -15,6 +15,7 @@ const handler: FetchHandler = async (request: Request, client) => {
   console.log(`Path: ${path}`);
   console.log(`Method: ${method}`);
   console.log(`Client IP: ${client.address}:${client.port}`);
+  console.log('User-Agent:', request.headers.get('user-agent'))
 
   const authHeader = request.headers.get('Authorization');
   const apiKey = process.env.API_KEY;
@@ -92,6 +93,6 @@ const handler: FetchHandler = async (request: Request, client) => {
 
 let server = http.createServer(createRequestListener(handler));
 
-server.listen(3000, () => {
-  console.log('Server running at http://localhost:3000');
+server.listen(4000, () => {
+  console.log('Server running at http://localhost:4000');
 });

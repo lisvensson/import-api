@@ -1,4 +1,4 @@
-import { FileUpload, parseFormData } from '@remix-run/form-data-parser';
+import { FileUpload } from '@remix-run/form-data-parser';
 import * as fsp from 'node:fs/promises';
 
 export async function uploadHandler1(fileUpload: FileUpload) {
