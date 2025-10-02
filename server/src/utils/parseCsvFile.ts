@@ -1,5 +1,6 @@
 import fs from 'fs';
-import readline from 'readline'
+import readline from 'readline';
+import { emailAnalyze } from './emailAnalyze.js';
 
 export async function parseCsvFile(filePath: string) {
   const readStream = fs.createReadStream(filePath, {encoding: 'utf-8'});
@@ -15,17 +16,16 @@ export async function parseCsvFile(filePath: string) {
     rl.on('close', () => {
       console.log('Finished reading file');
       const headers = rows[0];
-      const columns = headers.map(name => {
-        let hint = 'text';
-        if (name.toLowerCase().includes('e-post') || name.toLowerCase().includes('email')) {
-          hint = 'email';
-        } else if (name.toLowerCase().includes('namn') || name.toLowerCase().includes('name')) {
-          hint = 'person name';
-        }
-        return { name, hint }
-      });
-
       const dataRows = rows.slice(1);
+      const columns = headers.map((name, index) => {
+        const columnValues = dataRows.map(row => row[index] ?? '');
+        const emailPercentage = emailAnalyze(columnValues);
+        let hint = 'text';
+        if (emailPercentage) {
+          hint = `email (${emailPercentage.toFixed(0)}%)`;
+        } 
+        return { name, hint };
+      })
       resolve({columns, rows: dataRows});
     })
     rl.on('error', (error) => {
