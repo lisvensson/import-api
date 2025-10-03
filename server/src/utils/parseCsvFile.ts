@@ -6,7 +6,7 @@ export async function parseCsvFile(filePath: string) {
   const readStream = fs.createReadStream(filePath, {encoding: 'utf-8'});
   const rl = readline.createInterface({ input: readStream });
 
-  return await new Promise<{ columns: { name: string; hint: string }[]; rows: string[][] }>((resolve, reject) => {
+  return await new Promise<{ columns: { name: string; hint: { type: string; probability: number } }[]; rows: string[][] }>((resolve, reject) => {
     const rows: string[][] = []
     rl.on('line', (line) => {
       const row = line.trim().split(';');
@@ -19,11 +19,10 @@ export async function parseCsvFile(filePath: string) {
       const dataRows = rows.slice(1);
       const columns = headers.map((name, index) => {
         const columnValues = dataRows.map(row => row[index] ?? '');
-        const emailPercentage = emailAnalyze(columnValues);
-        let hint = 'text';
-        if (emailPercentage) {
-          hint = `email (${emailPercentage.toFixed(0)}%)`;
-        } 
+        const emailProbability = emailAnalyze(columnValues);
+        const hint = emailProbability > 0
+        ? {type: 'email', probability: Number(emailProbability.toFixed(2))}
+        : undefined;
         return { name, hint };
       })
       resolve({columns, rows: dataRows});
