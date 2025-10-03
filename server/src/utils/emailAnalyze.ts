@@ -5,5 +5,5 @@ export function emailAnalyze(values: string[]): number {
   if (totalValue === 0) return 0;
 
   const validEmails = values.filter(value => emailRegex.test(value.trim()));
-  return (validEmails.length / totalValue) * 100;
+  return (validEmails.length / totalValue);
 }
