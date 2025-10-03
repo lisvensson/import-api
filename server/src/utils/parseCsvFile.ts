@@ -1,6 +1,7 @@
 import fs from 'fs';
 import readline from 'readline';
 import { emailAnalyze } from './emailAnalyze.js';
+import { getNameList, nameAnalyze } from './nameAnalyze.js';
 
 export async function parseCsvFile(filePath: string) {
   const readStream = fs.createReadStream(filePath, {encoding: 'utf-8'});
@@ -13,15 +14,19 @@ export async function parseCsvFile(filePath: string) {
       rows.push(row);
       console.log(row);
     })
-    rl.on('close', () => {
+    rl.on('close', async () => {
       console.log('Finished reading file');
+      const nameList = await getNameList('C:/Users/LiSve/Documents/FSU24/09_LIA-1/import-api/server/src/assets/names.txt');
       const headers = rows[0];
       const dataRows = rows.slice(1);
       const columns = headers.map((name, index) => {
         const columnValues = dataRows.map(row => row[index] ?? '');
         const emailProbability = emailAnalyze(columnValues);
+        const nameProbability = nameAnalyze(columnValues, nameList);
         const hint = emailProbability > 0
         ? {type: 'email', probability: Number(emailProbability.toFixed(2))}
+        : nameProbability > 0
+        ? {type: 'person name', probability: Number(nameProbability.toFixed(2))}
         : undefined;
         return { name, hint };
       })
