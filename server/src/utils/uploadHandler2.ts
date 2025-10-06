@@ -2,7 +2,7 @@ import { LocalFileStorage } from '@remix-run/file-storage/local';
 import { FileUpload } from '@remix-run/form-data-parser';
 
 export async function uploadHandler2(fileUpload: FileUpload) {
-    const filePath = 'C:/Users/LiSve/Documents/FSU24/09_LIA-1/import-api/server/src/uploads/';
+    const filePath = './server/src/uploads/';
     const storage = new LocalFileStorage(filePath);
 
     if (fileUpload.fieldName === 'file') {

@@ -12,7 +12,7 @@ export async function uploadHandler1(fileUpload: FileUpload) {
       throw new Error('File too large max size is 2MB.');
     }
 
-    const filePath = `C:/Users/LiSve/Documents/FSU24/09_LIA-1/import-api/server/src/uploads/${Date.now()}-${fileUpload.name}`;
+    const filePath = `./src/uploads/${Date.now()}-${fileUpload.name}`;
     const bytes = await fileUpload.bytes();
     await fsp.writeFile(filePath, bytes);
     console.log(fileUpload);

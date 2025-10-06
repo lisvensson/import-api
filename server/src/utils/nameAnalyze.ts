@@ -12,7 +12,7 @@ export function nameAnalyze(values: string[], names: Set<string>): number {
 
     const validNames = values.filter(value => {
         const nameParts = value.trim().split(/\s+/); 
-        const result = nameParts.every(part => names.has(part.toLowerCase()));
+        const result = nameParts.some(part => names.has(part.toLowerCase()));
         return result;
     });
 

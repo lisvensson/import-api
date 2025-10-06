@@ -16,7 +16,8 @@ export async function parseCsvFile(filePath: string) {
     })
     rl.on('close', async () => {
       console.log('Finished reading file');
-      const nameList = await getNameList('C:/Users/LiSve/Documents/FSU24/09_LIA-1/import-api/server/src/assets/names.txt');
+      const filePath = './src/assets/names.txt';
+      const nameList = await getNameList(filePath);
       const headers = rows[0];
       const dataRows = rows.slice(1);
       const columns = headers.map((name, index) => {
